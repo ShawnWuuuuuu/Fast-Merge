@@ -4,6 +4,7 @@ import {
 	GitLabProject,
 	GitLabBranch,
 	GitLabCommit,
+	GitLabUser,
 	GitRepository,
 	MergeRequestOptions,
 	CherryPickOptions,
@@ -147,6 +148,14 @@ export const useGitLabApi = () => {
 		[sendRequest],
 	)
 
+	// 获取项目成员列表
+	const getProjectMembers = useCallback(
+		(projectId: number, search?: string) => {
+			sendRequest("gitlab:getProjectMembers", { projectId, search })
+		},
+		[sendRequest],
+	)
+
 	// 创建merge request
 	const createMergeRequest = useCallback(
 		(projectId: number, options: MergeRequestOptions) => {
@@ -212,6 +221,7 @@ export const useGitLabApi = () => {
 		getProjects,
 		getBranches,
 		getCommits,
+		getProjectMembers,
 		createMergeRequest,
 		createCherryPickMR,
 		closeMergeRequest,
@@ -222,6 +232,7 @@ export const useGitLabApi = () => {
 		projectsState: getApiState<GitLabProject[]>("gitlab:getProjects"),
 		branchesState: getApiState<GitLabBranch[]>("gitlab:getBranches"),
 		commitsState: getApiState<GitLabCommit[]>("gitlab:getCommits"),
+		membersState: getApiState<GitLabUser[]>("gitlab:getProjectMembers"),
 		mergeRequestState: getApiState<MergeResult>("gitlab:createMergeRequest"),
 		cherryPickState: getApiState<CherryPickResult[]>("gitlab:createCherryPickMR"),
 		closeMergeRequestState: getApiState<any>("gitlab:closeMergeRequest"),

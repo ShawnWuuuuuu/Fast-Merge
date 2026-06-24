@@ -17,6 +17,7 @@ import {
 import React, { useEffect, useMemo, useState } from 'react';
 import { BranchSelector } from '../../components/BranchSelector';
 import { CommitSelector } from '../../components/CommitSelector';
+import { MemberSelector } from '../../components/MemberSelector';
 import { MergeStatus } from '../../components/MergeStatus';
 import { getName, ProjectSelector } from '../../components/ProjectSelector';
 import { useConfig } from '../../hooks/useConfig';
@@ -62,6 +63,9 @@ const MergePage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [mergeTitle, setMergeTitle] = useState<string>(''); // MR标题状态
+  // 指派人和审核人
+  const [assigneeId, setAssigneeId] = useState<number | undefined>(undefined);
+  const [reviewerIds, setReviewerIds] = useState<number[]>([]);
 
   // 初始化，获取当前仓库信息
   useEffect(() => {
@@ -112,6 +116,8 @@ const MergePage: React.FC = () => {
       setSelectedCommitDetails([]);
       setTargetBranches(['test']);
       setMergeTitle('');
+      setAssigneeId(undefined);
+      setReviewerIds([]);
     }
   }, [selectedProject]);
 
@@ -253,7 +259,9 @@ const MergePage: React.FC = () => {
       source_branch: sourceBranch!,
       target_branch: targetBranch!,
       remove_source_branch: false,
-      squash: false
+      squash: false,
+      assignee_id: assigneeId,
+      reviewer_ids: reviewerIds.length > 0 ? reviewerIds : undefined
     };
     const cherryPickOptions: CherryPickOptions = {
       timestamp,
@@ -261,7 +269,9 @@ const MergePage: React.FC = () => {
       target_branches: targetBranches,
       title: mergeTitle || 'Cherry-pick',
       description: `Cherry-pick 提交 ${selectedCommits.join(', ')} 到目标分支`,
-      commit_details: selectedCommitDetails.length > 0 ? selectedCommitDetails : undefined // 传递完整的commit信息
+      commit_details: selectedCommitDetails.length > 0 ? selectedCommitDetails : undefined, // 传递完整的commit信息
+      assignee_id: assigneeId,
+      reviewer_ids: reviewerIds.length > 0 ? reviewerIds : undefined
     };
     let options = null
     let mrFunc = null
@@ -485,6 +495,34 @@ const MergePage: React.FC = () => {
             </Form.Item>
           </Col>
         </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item label="指派人">
+              <MemberSelector
+                projectId={selectedProject?.id}
+                value={assigneeId}
+                onChange={(value) => setAssigneeId(value as number | undefined)}
+                placeholder="选择指派人（可选）"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
+        <Row gutter={16}>
+          <Col span={24}>
+            <Form.Item label="审核人">
+              <MemberSelector
+                projectId={selectedProject?.id}
+                value={reviewerIds}
+                onChange={(value) => setReviewerIds(value as number[])}
+                placeholder="选择审核人（可选，支持多选）"
+                multiple={true}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Form.Item style={{ margin: '16px 0', textAlign: 'center' }}>
           <Space>
             <Button
@@ -516,8 +554,9 @@ const MergePage: React.FC = () => {
                 setTargetBranch('');
                 // MR标题
                 setMergeTitle('');
-
-
+                // 指派人和审核人
+                setAssigneeId(undefined);
+                setReviewerIds([]);
 
                 setShowResults(false);
 

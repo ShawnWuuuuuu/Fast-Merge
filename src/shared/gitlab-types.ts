@@ -136,6 +136,8 @@ export interface CherryPickOptions {
 	title?: string // 添加完整标题字段
 	description?: string
 	commit_details?: GitLabCommit[] // 添加commit详细信息
+	assignee_id?: number // 指派人ID
+	reviewer_ids?: number[] // 审核人ID列表
 }
 
 export interface MergeResult {

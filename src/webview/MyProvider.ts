@@ -196,6 +196,10 @@ class MyProvider implements vscode.WebviewViewProvider {
 					await this.handleGetCommits(message.message)
 					break
 
+				case "gitlab:getProjectMembers":
+					await this.handleGetProjectMembers(message.message)
+					break
+
 				case "gitlab:createMergeRequest":
 					await this.handleCreateMergeRequest(message.message)
 					break
@@ -294,6 +298,18 @@ class MyProvider implements vscode.WebviewViewProvider {
 
 		} catch (error: any) {
 			this.sendResponse({ requestType: 'gitlab:getCommits', success: false, data: null, error: error.message })
+
+		}
+	}
+
+	// 处理获取项目成员列表
+	private async handleGetProjectMembers(params: { projectId: number; search?: string }): Promise<void> {
+		try {
+			const members = await this.gitLabService.getProjectMembers(params.projectId, params.search)
+			this.sendResponse({ requestType: 'gitlab:getProjectMembers', success: true, data: members })
+
+		} catch (error: any) {
+			this.sendResponse({ requestType: 'gitlab:getProjectMembers', success: false, data: null, error: error.message })
 
 		}
 	}

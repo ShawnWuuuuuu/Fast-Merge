@@ -382,7 +382,9 @@ export class GitLabService {
           description: options.description || `Cherry-pick commits: ${options.commits.join(', ')}`,
           source_branch: tempBranchName,
           target_branch: targetBranch,
-          remove_source_branch: true  // 合并后自动删除临时分支
+          remove_source_branch: true,  // 合并后自动删除临时分支
+          assignee_id: options.assignee_id,
+          reviewer_ids: options.reviewer_ids
         };
 
         const result = await this.createMergeRequest(projectId, mergeRequestOptions);
@@ -429,6 +431,26 @@ export class GitLabService {
     const results = await Promise.all(promises);
     
     return results;
+  }
+
+  /**
+   * 获取项目成员列表（包含继承的组成员）
+   */
+  async getProjectMembers(projectId: number, search?: string, page: number = 1, perPage: number = 50): Promise<GitLabUser[]> {
+    const params: Record<string, string | number> = {
+      page: page.toString(),
+      per_page: perPage.toString()
+    };
+
+    if (search) {
+      params.query = search;
+    }
+
+    const response = await this.httpClient.get<GitLabUser[]>(
+      `/projects/${projectId}/members/all`,
+      params
+    );
+    return response.data;
   }
 
   /**

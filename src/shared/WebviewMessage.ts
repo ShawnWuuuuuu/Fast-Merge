@@ -8,7 +8,7 @@ export interface WebviewMessage {
 
 // GitLab 相关消息类型
 export interface GitLabMessage extends WebviewMessage {
-	type: 'gitlab:getProjects' | 'gitlab:getBranches' | 'gitlab:getCommits' | 'gitlab:createMergeRequest' | 'gitlab:createCherryPickMR' | 'gitlab:closeMergeRequest' | 'gitlab:getCurrentRepo' | 'gitlab:setConfiguration' | 'gitlab:conflictStatusUpdate' | 'openExternalLink'
+	type: 'gitlab:getProjects' | 'gitlab:getBranches' | 'gitlab:getCommits' | 'gitlab:getProjectMembers' | 'gitlab:createMergeRequest' | 'gitlab:createCherryPickMR' | 'gitlab:closeMergeRequest' | 'gitlab:getCurrentRepo' | 'gitlab:setConfiguration' | 'gitlab:conflictStatusUpdate' | 'openExternalLink'
 }
 
 // 配置相关消息类型
@@ -44,6 +44,15 @@ export interface GetCommitsMessage extends GitLabMessage {
 		search?: string
 		page?: number
 		perPage?: number
+	}
+}
+
+// 获取项目成员列表
+export interface GetProjectMembersMessage extends GitLabMessage {
+	type: 'gitlab:getProjectMembers'
+	message: {
+		projectId: number
+		search?: string
 	}
 }
 
@@ -117,6 +126,7 @@ export type AllWebviewMessages =
 	| GetProjectsMessage
 	| GetBranchesMessage
 	| GetCommitsMessage
+	| GetProjectMembersMessage
 	| CreateMergeRequestMessage
 	| CreateCherryPickMRMessage
 	| CloseMergeRequestMessage
